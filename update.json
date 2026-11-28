@@ -1,0 +1,5 @@
+{
+ "version": "9.3",
+ "notes": "Windows 7 update fix: Setup waits for the old app to close before installing; if an update does not go in, the app says so and offers the Setup",
+ "url": "https://github.com/abdulbasit995/zamzam-die-maker-updates/raw/main/ZamZamDieMakerDrawing-Setup.exe"
+}

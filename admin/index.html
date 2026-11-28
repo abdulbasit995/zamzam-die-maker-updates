@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<title>Zam Zam Admin</title>
+<style>
+:root {
+  --bg:#0b0e14; --bg2:#11151d; --card:#161b25; --card2:#1d2431; --line:#262f3e; --text:#eef2f8; --dim:#8a95a8; --dim2:#5f6b80;
+  --brand:#3b8cff; --brand2:#6a5cff; --gold:#f5c542; --ok:#2ed47a; --bad:#ff5d6c; --r:18px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing:antialiased; }
+button, input { font:inherit; color:inherit; }
+button { cursor:pointer; touch-action:manipulation; }
+.hidden { display:none !important; }
+
+/* ---------- login ---------- */
+#login { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:32px 22px;
+  background:radial-gradient(110% 55% at 50% 0%, #17336a 0%, var(--bg) 62%); }
+.logo { width:76px; height:76px; border-radius:24px; margin:0 auto 16px; display:grid; place-items:center;
+  background:linear-gradient(135deg, var(--brand), var(--brand2)); box-shadow:0 14px 34px rgba(59,140,255,.35); }
+.logo svg { width:42px; height:42px; }
+.title { text-align:center; font-weight:800; font-size:24px; letter-spacing:.3px; }
+.subtitle { text-align:center; color:var(--dim); margin:6px 0 28px; font-size:14px; }
+.field { position:relative; margin-bottom:12px; }
+.field input { width:100%; padding:16px 48px; border-radius:14px; border:1px solid var(--line); background:var(--bg2); font-size:16px; outline:none; transition:border .15s, box-shadow .15s; }
+.field input:focus { border-color:var(--brand); box-shadow:0 0 0 4px rgba(59,140,255,.15); }
+.field .ic { position:absolute; left:16px; top:50%; transform:translateY(-50%); opacity:.55; pointer-events:none; }
+.field .eye { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; padding:10px; opacity:.7; }
+.btn { width:100%; padding:15px; border:none; border-radius:14px; font-weight:700; font-size:16px; transition:transform .08s, opacity .15s; }
+.btn.primary { background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#fff; box-shadow:0 8px 22px rgba(59,140,255,.28); }
+.btn.ghost { background:transparent; color:var(--dim); margin-top:8px; }
+.btn.light { background:var(--card2); color:var(--text); }
+.btn:active { transform:scale(.98); }
+.btn:disabled { opacity:.55; }
+.err { color:var(--bad); text-align:center; min-height:22px; margin-top:10px; font-size:14px; white-space:pre-wrap; }
+
+/* ---------- app shell ---------- */
+header { position:sticky; top:0; z-index:5; padding:calc(14px + env(safe-area-inset-top)) 18px 18px;
+  background:linear-gradient(140deg, #16305f, #191c3a 70%); border-bottom-left-radius:26px; border-bottom-right-radius:26px; box-shadow:var(--shadow); }
+.hrow { display:flex; align-items:center; gap:12px; }
+.hrow .logo { width:44px; height:44px; border-radius:14px; margin:0; box-shadow:none; }
+.hrow .logo svg { width:24px; height:24px; }
+.hname { flex:1; min-width:0; }
+.hname b { display:block; font-size:18px; }
+.hname span { color:#aebbd6; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+.icon-btn { width:44px; height:44px; border-radius:14px; border:none; background:rgba(255,255,255,.09); display:grid; place-items:center; font-size:18px; }
+.icon-btn:active { background:rgba(255,255,255,.18); }
+.spin { display:inline-block; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+.stat { background:rgba(255,255,255,.07); border-radius:16px; padding:11px 12px; }
+.stat b { display:block; font-size:21px; font-weight:800; white-space:nowrap; }
+.stat span { color:#aebbd6; font-size:12px; }
+.pulse { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ok); margin-right:6px; box-shadow:0 0 0 0 rgba(46,212,122,.6); animation:pulse 1.6s infinite; vertical-align:middle; }
+@keyframes pulse { 70% { box-shadow:0 0 0 8px rgba(46,212,122,0); } 100% { box-shadow:0 0 0 0 rgba(46,212,122,0); } }
+
+main { padding:16px 16px calc(96px + env(safe-area-inset-bottom)); max-width:720px; margin:0 auto; }
+.view { animation:fade .18s ease; }
+@keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+.seg { display:flex; background:var(--bg2); border:1px solid var(--line); border-radius:14px; padding:4px; gap:4px; }
+.seg button { flex:1; padding:10px; border:none; border-radius:10px; background:none; color:var(--dim); font-weight:600; }
+.seg button.on { background:var(--card2); color:var(--text); }
+.search { margin:12px 0 14px; position:relative; }
+.search input { width:100%; padding:13px 14px 13px 42px; border-radius:14px; border:1px solid var(--line); background:var(--bg2); outline:none; }
+.search input:focus { border-color:var(--brand); }
+.search .ic { position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:.5; }
+.sec { color:var(--dim2); font-size:12px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; margin:18px 4px 8px; }
+
+.u { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-bottom:10px; display:flex; gap:12px; align-items:center; transition:transform .1s, border-color .15s; }
+.u.tap:active { transform:scale(.99); border-color:#33405a; }
+.av { width:46px; height:46px; border-radius:15px; display:grid; place-items:center; font-weight:800; font-size:16px; flex:none; position:relative; }
+.av .dot { position:absolute; right:-3px; bottom:-3px; width:13px; height:13px; border-radius:50%; background:var(--ok); border:3px solid var(--card); }
+.ub { flex:1; min-width:0; }
+.ut { display:flex; align-items:center; gap:6px; }
+.ut b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip { font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:20px; letter-spacing:.4px; }
+.chip.admin { background:rgba(245,197,66,.15); color:var(--gold); }
+.chip.off { background:rgba(255,93,108,.15); color:var(--bad); }
+.us { color:var(--dim); font-size:13px; }
+.hrs { text-align:right; flex:none; }
+.hrs b { font-size:18px; display:block; }
+.hrs span { color:var(--dim); font-size:12px; }
+.bar { height:6px; border-radius:6px; background:var(--bg2); margin-top:8px; overflow:hidden; }
+.bar i { display:block; height:100%; border-radius:6px; background:linear-gradient(90deg, var(--brand), var(--brand2)); }
+.empty { text-align:center; color:var(--dim); padding:44px 0; }
+.skel { height:74px; border-radius:var(--r); margin-bottom:10px; background:linear-gradient(90deg, var(--card) 25%, var(--card2) 50%, var(--card) 75%); background-size:200% 100%; animation:sk 1.2s infinite; }
+@keyframes sk { to { background-position:-200% 0; } }
+
+/* ---------- bottom navigation ---------- */
+nav.tabs { position:fixed; left:0; right:0; bottom:0; z-index:6; display:flex; justify-content:center; gap:6px;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:rgba(11,14,20,.92); backdrop-filter:blur(12px); border-top:1px solid var(--line); }
+nav.tabs button { flex:1; max-width:160px; border:none; background:none; color:var(--dim); padding:6px 4px; border-radius:12px; font-size:12px; font-weight:600; display:flex; flex-direction:column; align-items:center; gap:2px; }
+nav.tabs button i { font-style:normal; font-size:20px; }
+nav.tabs button.on { color:var(--text); background:var(--card2); }
+.fab { position:fixed; right:18px; bottom:calc(84px + env(safe-area-inset-bottom)); width:58px; height:58px; border-radius:20px; border:none; z-index:7;
+  background:linear-gradient(135deg, var(--gold), #ff9f43); color:#251900; font-size:30px; font-weight:700; box-shadow:0 10px 26px rgba(245,197,66,.35); }
+.fab:active { transform:scale(.95); }
+
+/* ---------- cards in Updates / Account ---------- */
+.card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:16px; margin-bottom:12px; }
+.card h4 { margin:0 0 2px; font-size:16px; display:flex; align-items:center; gap:8px; }
+.card .ver { font-size:28px; font-weight:800; margin:6px 0 2px; }
+.card .ver.load { color:var(--dim2); }
+.card label { display:block; color:var(--dim); font-size:13px; margin:12px 0 6px; }
+.card input[type=text], .card input[type=password] { width:100%; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--bg2); font-size:16px; outline:none; }
+.card input[type=file] { width:100%; padding:12px; border-radius:12px; border:1px dashed #3a465c; background:var(--bg2); color:var(--dim); }
+.card .btn { margin-top:14px; }
+.upbox { margin:14px 0 4px; display:none; }
+.upbox.on { display:block; }
+.upbar { height:12px; border-radius:8px; background:rgba(255,255,255,.08); overflow:hidden; }
+.upbar > i { display:block; height:100%; width:0; background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:8px; transition:width .2s; }
+.uptxt { font-size:13px; margin-top:6px; color:var(--dim); white-space:pre-wrap; }
+.uptxt b { color:#fff; }
+.upok { color:var(--ok) !important; font-weight:700; }
+.upbad { color:var(--bad) !important; font-weight:700; }
+.act { display:flex; align-items:center; gap:14px; padding:14px 4px; border-bottom:1px solid var(--line); }
+.act:last-child { border-bottom:none; }
+.act:active { opacity:.7; }
+.act .ai { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--card2); font-size:18px; flex:none; }
+.act .at { flex:1; }
+.act .at small { display:block; color:var(--dim); font-size:12px; }
+.act.danger { color:var(--bad); }
+.steps { color:var(--dim); font-size:13px; line-height:1.75; padding-left:18px; margin:8px 0 0; }
+
+/* ---------- bottom sheet ---------- */
+.shade { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:20; opacity:0; pointer-events:none; transition:opacity .18s; }
+.shade.on { opacity:1; pointer-events:auto; }
+.sheet { position:fixed; left:0; right:0; bottom:0; z-index:21; background:var(--card); border-top-left-radius:26px; border-top-right-radius:26px;
+  padding:10px 18px calc(22px + env(safe-area-inset-bottom)); max-height:88vh; overflow:auto; transform:translateY(105%); transition:transform .22s cubic-bezier(.2,.8,.2,1); max-width:720px; margin:0 auto; }
+.sheet.on { transform:none; }
+.grab { width:44px; height:5px; border-radius:5px; background:var(--line); margin:0 auto 14px; }
+.sheet h3 { margin:0 0 4px; font-size:19px; }
+.sheet .sub { color:var(--dim); margin-bottom:14px; font-size:13px; }
+.sheet label { display:block; color:var(--dim); font-size:13px; margin:12px 0 6px; }
+.sheet input[type=text], .sheet input[type=tel], .sheet input[type=password] { width:100%; padding:14px; border-radius:12px; border:1px solid var(--line); background:var(--bg2); font-size:16px; outline:none; }
+.sheet input:focus { border-color:var(--brand); }
+.sw { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--line); }
+.sw input { width:48px; height:28px; appearance:none; -webkit-appearance:none; background:var(--line); border-radius:20px; position:relative; transition:background .2s; flex:none; }
+.sw input::after { content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .2s; }
+.sw input:checked { background:var(--ok); }
+.sw input:checked::after { left:23px; }
+.row2 { display:flex; gap:10px; margin-top:18px; }
+.row2 .btn { padding:14px; }
+.hist { width:100%; border-collapse:collapse; font-size:13px; }
+.hist td { padding:10px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+.hist td:last-child { text-align:right; font-weight:700; }
+.toast { position:fixed; left:50%; bottom:calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px); background:#06080c; border:1px solid var(--line); padding:12px 18px; border-radius:14px; opacity:0; transition:all .22s; z-index:40; max-width:90vw; box-shadow:var(--shadow); }
+.toast.on { opacity:1; transform:translateX(-50%); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="z" viewBox="0 0 40 40"><path d="M11 11H29L11 29H29" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 20H33" stroke="#f5c542" stroke-width="2.4" stroke-dasharray="3 3"/></symbol>
+</svg>
+
+<!-- LOGIN -->
+<section id="login">
+  <div class="logo"><svg><use href="#z"/></svg></div>
+  <div class="title">Zam Zam Admin</div>
+  <div class="subtitle">Die Maker Software · users, login time and updates</div>
+  <div class="field"><span class="ic">📱</span><input id="ph" type="tel" inputmode="tel" placeholder="Phone number" autocomplete="username"></div>
+  <div class="field"><span class="ic">🔒</span><input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="eye" onclick="togglePw('pw')" type="button" aria-label="Show password">👁</button></div>
+  <button class="btn primary" id="lbtn" onclick="login()">Log in</button>
+  <div class="err" id="lmsg"></div>
+  <button class="btn ghost" onclick="firstAdminSheet()">First time here? Create the admin</button>
+</section>
+
+<!-- APP -->
+<section id="app" class="hidden">
+  <header>
+    <div class="hrow">
+      <div class="logo"><svg><use href="#z"/></svg></div>
+      <div class="hname"><b>Zam Zam Admin</b><span id="who"></span></div>
+      <button class="icon-btn" onclick="load(true)" aria-label="Refresh"><span id="ref">⟳</span></button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="s_users">–</b><span>Users</span></div>
+      <div class="stat"><b id="s_online">–</b><span><i class="pulse"></i>Online</span></div>
+      <div class="stat"><b id="s_hours">–</b><span id="s_hlabel">Today total</span></div>
+    </div>
+  </header>
+  <main>
+    <div id="v_users" class="view">
+      <div class="seg" id="seg">
+        <button data-k="d" class="on">Today</button><button data-k="w">This week</button><button data-k="m">This month</button>
+      </div>
+      <div class="search"><span class="ic">🔎</span><input id="q" placeholder="Search name or phone" oninput="render()"></div>
+      <div id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+    <div id="v_updates" class="view hidden"></div>
+    <div id="v_account" class="view hidden"></div>
+  </main>
+  <button class="fab" id="fab" onclick="editSheet()" aria-label="New user">+</button>
+  <nav class="tabs" id="tabs">
+    <button data-v="users" class="on"><i>👥</i>Users</button>
+    <button data-v="updates"><i>⬆</i>Updates</button>
+    <button data-v="account"><i>⚙</i>Account</button>
+  </nav>
+</section>
+
+<div class="shade" id="shade" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sbody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "https://mgeqqxcrfttwwqplwnph.supabase.co/rest/v1/rpc/";
+const KEY = "sb_publishable_-JiktsvQt-aZ1kWQ4Lc7wg_IC5Uutn8";
+let A = null, ROWS = [], PERIOD = "d", timer = null, VIEW = "users";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {get(k){try{return sessionStorage.getItem(k)}catch(e){return null}}, set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}, del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
+const ls = {get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+/* every network call gives up after a while, so no button ever hangs */
+function timed(url, opt = {}, ms = 12000) {
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  return fetch(url, Object.assign({}, opt, {signal:c.signal})).finally(() => clearTimeout(t));
+}
+async function rpc(fn, args) {
+  let r;
+  try { r = await timed(API + fn, {method:"POST", headers:{apikey:KEY, "Content-Type":"application/json"}, body:JSON.stringify(args)}); }
+  catch (e) { throw new Error(e.name === "AbortError" ? "The server took too long - check the internet" : "No internet connection"); }
+  if (!r.ok) throw new Error("Server error " + r.status);
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 2400); }
+function hm(m) { m = Math.round(m || 0); if (!m) return "0m"; const h = Math.floor(m / 60); return h ? h + "h " + String(m % 60).padStart(2, "0") + "m" : m + "m"; }
+function ago(s) {
+  if (!s) return "never"; const d = (Date.now() - new Date(s)) / 60000;
+  if (d < 2) return "just now"; if (d < 60) return Math.round(d) + " min ago"; if (d < 1440) return Math.round(d / 60) + " h ago";
+  return new Date(s).toLocaleDateString("en-IN", {day:"2-digit", month:"short"});
+}
+function when(s) { return s ? new Date(s).toLocaleString("en-IN", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"}) : "–"; }
+function initials(n, p) { const w = String(n || "").trim().split(/\s+/).filter(Boolean); return w.length ? (w[0][0] + (w[1] ? w[1][0] : "")).toUpperCase() : String(p).slice(-2); }
+function hue(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function togglePw(id) { const i = $(id); i.type = i.type === "password" ? "text" : "password"; }
+
+/* ---------- login ---------- */
+async function login() {
+  const ph = $("ph").value.trim(), pw = $("pw").value;
+  if (!ph || !pw) { $("lmsg").textContent = "Enter your phone number and password"; return; }
+  $("lbtn").disabled = true; $("lbtn").textContent = "Logging in …"; $("lmsg").textContent = "";
+  try {
+    const now = new Date().toISOString();
+    const r = await rpc("admin_report", {p_admin:ph, p_admin_pw:pw, p_from:now, p_to:now});
+    if (!r.ok) { $("lmsg").textContent = "Wrong phone / password, or this account is not an admin"; return; }
+    A = {phone:ph, pw:pw}; store.set("zz_admin", JSON.stringify(A)); enter();
+  } catch (e) { $("lmsg").textContent = e.message; }
+  finally { $("lbtn").disabled = false; $("lbtn").textContent = "Log in"; }
+}
+function enter() {
+  $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+  show("users"); load(); clearInterval(timer); timer = setInterval(load, 60000);
+  prefetchVersions();
+}
+function logout() { A = null; store.del("zz_admin"); clearInterval(timer); $("pw").value = ""; closeSheet(); $("app").classList.add("hidden"); $("login").classList.remove("hidden"); }
+function firstAdminSheet() {
+  openSheet(`<h3>Create the first admin</h3><div class="sub">Only once. After this, new users are added from inside the app.</div>
+    <label>Name</label><input type="text" id="f_nm" placeholder="Your name">
+    <label>Phone number</label><input type="tel" id="f_ph" value="${esc($("ph").value)}">
+    <label>Password (at least 6 characters)</label><input type="password" id="f_pw">
+    <div class="err" id="smsg"></div>
+    <div class="row2"><button class="btn light" onclick="closeSheet()">Cancel</button><button class="btn primary" onclick="doFirst()">Create admin</button></div>`);
+}
+async function doFirst() {
+  try {
+    const r = await rpc("setup_first_admin", {p_phone:$("f_ph").value.trim(), p_name:$("f_nm").value.trim(), p_pw:$("f_pw").value});
+    if (r !== "ok") { $("smsg").textContent = r; return; }
+    $("ph").value = $("f_ph").value.trim(); $("pw").value = $("f_pw").value; closeSheet(); toast("Admin created"); login();
+  } catch (e) { $("smsg").textContent = e.message; }
+}
+
+/* ---------- tabs ---------- */
+function show(v) {
+  VIEW = v;
+  ["users", "updates", "account"].forEach(k => $("v_" + k).classList.toggle("hidden", k !== v));
+  [...$("tabs").children].forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  $("fab").classList.toggle("hidden", v !== "users");
+  if (v === "updates") updatesView();
+  if (v === "account") accountView();
+  window.scrollTo(0, 0);
+}
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) show(b.dataset.v); };
+
+/* ---------- users ---------- */
+async function load(manual) {
+  if (!A) return;
+  if (manual) $("ref").classList.add("spin");
+  const now = new Date(), day = new Date(now); day.setHours(0, 0, 0, 0);
+  const week = new Date(day); week.setDate(day.getDate() - ((day.getDay() + 6) % 7));
+  const month = new Date(day); month.setDate(1);
+  const end = new Date(now.getTime() + 60000).toISOString();
+  try {
+    const rs = await Promise.all([day, week, month].map(t => rpc("admin_report", {p_admin:A.phone, p_admin_pw:A.pw, p_from:t.toISOString(), p_to:end})));
+    if (rs.some(r => !r.ok)) { logout(); $("lmsg").textContent = "Please log in again"; return; }
+    const per = {};
+    ["d", "w", "m"].forEach((k, i) => rs[i].users.forEach(u => { per[u.phone] = Object.assign(per[u.phone] || {}, u); per[u.phone][k] = u.minutes; }));
+    ROWS = Object.values(per);
+    const me = ROWS.find(u => u.phone === A.phone);
+    $("who").textContent = (me && me.name ? me.name : A.phone) + " · admin";
+    render();
+    if (manual) toast("Up to date");
+  } catch (e) { toast(e.message); if (!ROWS.length) $("list").innerHTML = `<div class="empty">${esc(e.message)}<br><br><button class="btn light" style="width:auto;padding:10px 18px" onclick="load(true)">Try again</button></div>`; }
+  finally { $("ref").classList.remove("spin"); }
+}
+function render() {
+  const q = $("q").value.trim().toLowerCase();
+  $("s_users").textContent = ROWS.length;
+  $("s_online").textContent = ROWS.filter(u => u.online).length;
+  $("s_hours").textContent = hm(ROWS.reduce((a, u) => a + (u[PERIOD] || 0), 0));
+  $("s_hlabel").textContent = {d:"Today total", w:"Week total", m:"Month total"}[PERIOD];
+  const list = ROWS.filter(u => !q || (u.name || "").toLowerCase().includes(q) || u.phone.includes(q))
+    .sort((a, b) => (b.online - a.online) || ((b[PERIOD] || 0) - (a[PERIOD] || 0)));
+  const max = Math.max(60, ...list.map(u => u[PERIOD] || 0));
+  $("list").innerHTML = list.map(u => {
+    const i = ROWS.indexOf(u), h = hue(u.phone);
+    return `<div class="u tap" onclick="userSheet(${i})">
+      <div class="av" style="background:hsl(${h} 55% 24%);color:hsl(${h} 90% 82%)">${esc(initials(u.name, u.phone))}${u.online ? '<i class="dot"></i>' : ""}</div>
+      <div class="ub"><div class="ut"><b>${esc(u.name || u.phone)}</b>${u.is_admin ? '<span class="chip admin">ADMIN</span>' : ""}${u.active ? "" : '<span class="chip off">BLOCKED</span>'}</div>
+        <div class="us">${esc(u.phone)} · ${u.online ? '<span style="color:var(--ok)">online</span>' : ago(u.last_seen)}</div>
+        <div class="bar"><i style="width:${Math.round(100 * (u[PERIOD] || 0) / max)}%"></i></div></div>
+      <div class="hrs"><b>${hm(u[PERIOD])}</b><span>${{d:"today", w:"this week", m:"this month"}[PERIOD]}</span></div>
+    </div>`;
+  }).join("") || `<div class="empty">${ROWS.length ? "No match" : "No users yet.<br>Tap <b>+</b> to add one."}</div>`;
+}
+$("seg").onclick = e => { const b = e.target.closest("button"); if (!b) return; PERIOD = b.dataset.k; [...$("seg").children].forEach(x => x.classList.toggle("on", x === b)); render(); };
+
+/* ---------- sheets ---------- */
+function openSheet(html) { $("sbody").innerHTML = html; $("shade").classList.add("on"); $("sheet").classList.add("on"); }
+function closeSheet() { $("shade").classList.remove("on"); $("sheet").classList.remove("on"); }
+function userSheet(i) {
+  const u = ROWS[i], h = hue(u.phone);
+  openSheet(`<div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+      <div class="av" style="background:hsl(${h} 55% 24%);color:hsl(${h} 90% 82%)">${esc(initials(u.name, u.phone))}</div>
+      <div><h3>${esc(u.name || u.phone)}</h3><div class="sub" style="margin:0">${esc(u.phone)} · ${u.online ? "online" : "last seen " + ago(u.last_seen)}</div></div></div>
+    <div class="stats" style="margin:10px 0 6px">
+      <div class="stat" style="background:var(--card2)"><b>${hm(u.d)}</b><span>Today</span></div>
+      <div class="stat" style="background:var(--card2)"><b>${hm(u.w)}</b><span>This week</span></div>
+      <div class="stat" style="background:var(--card2)"><b>${hm(u.m)}</b><span>This month</span></div></div>
+    <div class="act" onclick="editSheet(${i})"><div class="ai">✎</div><div class="at">Edit / change password</div></div>
+    <div class="act" onclick="historySheet(${i})"><div class="ai">🕘</div><div class="at">Login history</div></div>
+    <div class="act" onclick="toggle(${i})"><div class="ai">${u.active ? "⏸" : "▶"}</div><div class="at">${u.active ? "Block user<small>They will not be able to log in</small>" : "Unblock user"}</div></div>
+    <div class="act danger" onclick="del(${i})"><div class="ai">🗑</div><div class="at">Delete user</div></div>`);
+}
+function editSheet(i) {
+  const u = i === undefined ? null : ROWS[i];
+  openSheet(`<h3>${u ? "Edit user" : "New user"}</h3><div class="sub">${u ? esc(u.phone) : "The user ID is the phone number"}</div>
+    ${u ? "" : '<label>Phone number</label><input type="tel" id="e_ph" placeholder="98xxxxxxxx">'}
+    <label>Name</label><input type="text" id="e_nm" value="${esc(u ? u.name : "")}" placeholder="Name">
+    <label>${u ? "New password (leave empty to keep it)" : "Password (at least 6 characters)"}</label>
+    <div class="field" style="margin:0"><input type="password" id="e_pw" style="padding-left:14px"><button class="eye" type="button" onclick="togglePw('e_pw')">👁</button></div>
+    <div class="sw"><span>Active (can log in)</span><input type="checkbox" id="e_ac" ${!u || u.active ? "checked" : ""}></div>
+    <div class="sw"><span>Admin (can manage users)</span><input type="checkbox" id="e_ad" ${u && u.is_admin ? "checked" : ""}></div>
+    <div class="err" id="smsg"></div>
+    <div class="row2"><button class="btn light" onclick="closeSheet()">Cancel</button><button class="btn primary" id="b_save" onclick="saveUser(${u ? i : -1})">Save</button></div>`);
+}
+async function saveUser(i) {
+  const u = i >= 0 ? ROWS[i] : null, phone = u ? u.phone : $("e_ph").value.trim(), pw = $("e_pw").value;
+  $("b_save").disabled = true;
+  try {
+    const r = await rpc("admin_save_user", {p_admin:A.phone, p_admin_pw:A.pw, p_phone:phone, p_name:$("e_nm").value.trim(), p_pw:pw,
+      p_active:$("e_ac").checked, p_is_admin:$("e_ad").checked});
+    if (r !== "ok") { $("smsg").textContent = r; return; }
+    if (phone === A.phone && pw) { A.pw = pw; store.set("zz_admin", JSON.stringify(A)); }
+    closeSheet(); toast(u ? "Saved" : "User created"); load();
+  } catch (e) { $("smsg").textContent = e.message; }
+  finally { const b = $("b_save"); if (b) b.disabled = false; }
+}
+async function toggle(i) {
+  const u = ROWS[i];
+  try {
+    const r = await rpc("admin_save_user", {p_admin:A.phone, p_admin_pw:A.pw, p_phone:u.phone, p_name:u.name, p_pw:"", p_active:!u.active, p_is_admin:u.is_admin});
+    if (r !== "ok") { toast(r); return; }
+    closeSheet(); toast(u.active ? "User blocked" : "User unblocked"); load();
+  } catch (e) { toast(e.message); }
+}
+async function del(i) {
+  const u = ROWS[i];
+  if (!confirm("Delete " + (u.name || u.phone) + " for good? Their login history will be deleted too.")) return;
+  try { const r = await rpc("admin_delete_user", {p_admin:A.phone, p_admin_pw:A.pw, p_phone:u.phone}); if (r !== "ok") { toast(r); return; } closeSheet(); toast("User deleted"); load(); }
+  catch (e) { toast(e.message); }
+}
+async function historySheet(i) {
+  const u = ROWS[i];
+  openSheet(`<h3>${esc(u.name || u.phone)}</h3><div class="sub">Login history</div><div id="hl"><div class="skel" style="height:40px"></div><div class="skel" style="height:40px"></div></div>`);
+  try {
+    const r = await rpc("admin_sessions", {p_admin:A.phone, p_admin_pw:A.pw, p_phone:u.phone, p_limit:80});
+    const ss = r.sessions || [];
+    $("hl").outerHTML = ss.length ? `<table class="hist">${ss.map(s => `<tr><td>${when(s.started_at)}<div class="us">${s.open ? '<span style="color:var(--ok)">running now</span>' : "until " + when(s.until)} · ${esc((s.machine || "").split(" (")[0])}</div></td><td>${hm(s.minutes)}</td></tr>`).join("")}</table>`
+      : '<div class="empty">No logins yet</div>';
+  } catch (e) { $("hl").textContent = e.message; }
+}
+
+/* ---------- account ---------- */
+function accountView() {
+  $("v_account").innerHTML = `<div class="sec">Account</div><div class="card" style="padding:4px 14px">
+      <div class="act" onclick="myPwSheet()"><div class="ai">🔑</div><div class="at">Change my password<small>${esc(A.phone)}</small></div></div>
+      <div class="act" onclick="show('users');editSheet()"><div class="ai">➕</div><div class="at">Add a new user</div></div>
+      <div class="act danger" onclick="logout()"><div class="ai">⏻</div><div class="at">Log out</div></div></div>
+    <div class="sec">About</div><div class="card"><div class="us">Zam Zam Admin · Die Maker Software<br>Developed by ABCodeX · 7269800079</div></div>`;
+}
+function myPwSheet() {
+  openSheet(`<h3>My password</h3><div class="sub">${esc(A.phone)}</div>
+    <label>Current password</label><input type="password" id="o_pw"><label>New password</label><input type="password" id="n_pw">
+    <div class="err" id="smsg"></div>
+    <div class="row2"><button class="btn light" onclick="closeSheet()">Cancel</button><button class="btn primary" onclick="doMyPw()">Change</button></div>`);
+}
+async function doMyPw() {
+  try {
+    const r = await rpc("app_change_password", {p_phone:A.phone, p_old:$("o_pw").value, p_new:$("n_pw").value});
+    if (r !== "ok") { $("smsg").textContent = r; return; }
+    A.pw = $("n_pw").value; store.set("zz_admin", JSON.stringify(A)); closeSheet(); toast("Password changed");
+  } catch (e) { $("smsg").textContent = e.message; }
+}
+
+/* ---------- updates: put new files into the public updates repo (GitHub) ---------- */
+const REPO = "abdulbasit995/zamzam-die-maker-updates";
+const GH = "https://api.github.com/repos/" + REPO;
+const RAW = "https://raw.githubusercontent.com/" + REPO + "/main/";
+let VERS = {pc:null, apk:null, at:0};
+async function gh(path, opt = {}) {
+  const r = await timed(GH + path, Object.assign({}, opt, {headers:{Authorization:"Bearer " + ls.get("zz_gh"), Accept:"application/vnd.github+json", "Content-Type":"application/json"}}), 30000);
+  if (!r.ok) throw new Error("GitHub " + r.status + ": " + (await r.text()).slice(0, 160));
+  return r.json();
+}
+async function rawJson(name) { try { return await (await timed(RAW + name + "?t=" + Date.now(), {}, 8000)).json(); } catch (e) { return null; } }
+/* versions are fetched in the background right after login, so the Updates tab opens instantly */
+async function prefetchVersions() {
+  const [pc, apk] = await Promise.all([rawJson("update.json"), rawJson("admin_apk.json")]);
+  VERS = {pc:pc || VERS.pc, apk:apk || VERS.apk, at:Date.now()};
+  fillVersions();
+}
+function fillVersions() {
+  const set = (id, v) => { const e = $(id); if (e) { e.textContent = v || "–"; e.classList.toggle("load", !v); } };
+  set("ver_pc", VERS.pc && VERS.pc.version); set("ver_apk", VERS.apk && VERS.apk.versionName);
+  const n1 = $("note_pc"); if (n1) n1.textContent = VERS.pc ? VERS.pc.notes || "" : "";
+  const vp = $("u_pcv"); if (vp && !vp.dataset.touched && VERS.pc) vp.value = bump(VERS.pc.version);
+  const va = $("u_apkv"); if (va && !va.dataset.touched && VERS.apk) va.value = VERS.apk.versionCode + 1;
+}
+function b64OfFile(f) { return new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = () => bad(r.error); r.readAsDataURL(f); }); }
+const b64OfText = t => btoa(unescape(encodeURIComponent(t)));
+function bump(v) { const p = String(v || "0").split(".").map(Number); p[p.length - 1] = (p[p.length - 1] || 0) + 1; return p.join("."); }
+function upMsg(t) { const m = $("umsg"); if (m) m.textContent = t; }
+
+async function pushFiles(files, message) {
+  upMsg("Connecting to GitHub …");
+  const ref = await gh("/git/ref/heads/main");
+  const head = await gh("/git/commits/" + ref.object.sha);
+  const tree = [];
+  for (const f of files) {
+    upMsg("Uploading " + f.path + " (" + (f.b64.length * 0.75 / 1e6).toFixed(1) + " MB) …");
+    const b = await gh("/git/blobs", {method:"POST", body:JSON.stringify({content:f.b64, encoding:"base64"})});
+    tree.push({path:f.path, mode:"100644", type:"blob", sha:b.sha});
+  }
+  upMsg("Saving …");
+  const t = await gh("/git/trees", {method:"POST", body:JSON.stringify({base_tree:head.tree.sha, tree})});
+  const c = await gh("/git/commits", {method:"POST", body:JSON.stringify({message, tree:t.sha, parents:[]})});
+  await gh("/git/refs/heads/main", {method:"PATCH", body:JSON.stringify({sha:c.sha, force:true})});
+}
+
+function updatesView() {
+  const tok = ls.get("zz_gh");
+  const verCards = `<div class="sec">Online now</div>
+    <div class="card"><h4>💻 PC app · Die Maker Software</h4><div class="ver load" id="ver_pc">…</div><div class="us" id="note_pc"></div></div>
+    <div class="card"><h4>📱 This app · Zam Zam Admin</h4><div class="ver load" id="ver_apk">…</div></div>`;
+  if (!tok) {
+    $("v_updates").innerHTML = verCards + `<div class="card"><h4>Publish an update yourself</h4>
+      <div class="us">The PC app and this app check for updates on their own. To upload a new Setup / APK from this phone, add a GitHub token once (it stays on this phone only).</div>
+      <ol class="steps"><li>github.com → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token</li>
+      <li>Repository access: <b>Only select repositories</b> → <b>zamzam-die-maker-updates</b></li>
+      <li>Permissions → Repository → <b>Contents: Read and write</b></li><li>Generate, then paste the token below</li></ol>
+      <label>GitHub token</label><input type="password" id="g_tok" placeholder="github_pat_…">
+      <div class="err" id="smsg"></div><button class="btn primary" id="b_tok" onclick="saveTok()">Save token</button></div>`;
+  } else {
+    $("v_updates").innerHTML = verCards + `<div class="sec">Publish</div>
+      <div class="card"><h4>💻 PC app update</h4>
+        <label>Setup file (.exe or .zip)</label><input type="file" id="u_pc" accept=".exe,.zip">
+        <label>New version</label><input type="text" id="u_pcv" inputmode="decimal" oninput="this.dataset.touched=1">
+        <label>What's new (shown on the PC)</label><input type="text" id="u_pcn" placeholder="e.g. title box, kaan fix">
+        <button class="btn primary" id="b_pc" onclick="upPC()">Publish PC update</button>
+        <div class="upbox" id="pcbox"><div class="upbar"><i id="pcbar"></i></div><div class="uptxt" id="pctxt"></div></div></div>
+      <div class="card"><h4>📱 Admin app update (APK)</h4>
+        <label>APK file</label><input type="file" id="u_apk" accept=".apk">
+        <label>Version number (from the file name, e.g. ZamZamAdmin-v12.apk = 12)</label><input type="text" id="u_apkv" inputmode="numeric" oninput="this.dataset.touched=1">
+        <button class="btn primary" id="b_apk" onclick="upAPK()">Publish app update</button>
+        <div class="upbox" id="apkbox"><div class="upbar"><i id="apkbar"></i></div><div class="uptxt" id="apktxt"></div></div></div>
+      <div class="card"><h4>🌐 Admin page (HTML)</h4><div class="us">This screen. Everyone sees the new page as soon as it is published.</div>
+        <label>HTML file</label><input type="file" id="u_html" accept=".html,.htm">
+        <button class="btn primary" onclick="upHTML()">Publish page</button><div class="err" id="umsg" style="color:var(--gold)"></div></div>
+      <button class="btn ghost" onclick="ls.del('zz_gh');updatesView();toast('Token removed')">Remove GitHub token</button>`;
+  }
+  fillVersions();
+  if (Date.now() - VERS.at > 30000) prefetchVersions();      // refresh in the background, the tab is already open
+}
+async function saveTok() {
+  const t = $("g_tok").value.trim(); if (!t) return;
+  $("b_tok").disabled = true; ls.set("zz_gh", t);
+  try { const r = await gh(""); if (!r.permissions || !r.permissions.push) throw new Error("The token needs Contents: Read and write"); toast("Token saved"); updatesView(); }
+  catch (e) { ls.del("zz_gh"); $("smsg").textContent = e.message; }
+  finally { const b = $("b_tok"); if (b) b.disabled = false; }
+}
+/* big files: XHR so the bar can move; the Setup goes up in parts of 12 MB (one GitHub request each) */
+function bar(id, pct, html, cls) {
+  const box = $(id + "box"); if (!box) return;
+  box.classList.add("on"); $(id + "bar").style.width = Math.max(0, Math.min(100, pct)).toFixed(1) + "%";
+  const t = $(id + "txt"); t.className = "uptxt" + (cls ? " " + cls : ""); t.innerHTML = html;
+}
+function xhrJson(method, url, body, onProg) {
+  return new Promise((ok, bad) => {
+    const x = new XMLHttpRequest(); x.open(method, url);
+    x.setRequestHeader("Authorization", "Bearer " + ls.get("zz_gh"));
+    x.setRequestHeader("Accept", "application/vnd.github+json"); x.setRequestHeader("Content-Type", "application/json");
+    x.timeout = 10 * 60 * 1000;
+    if (onProg) x.upload.onprogress = e => { if (e.lengthComputable) onProg(e.loaded / e.total); };
+    x.onload = () => { if (x.status >= 200 && x.status < 300) { try { ok(JSON.parse(x.responseText)); } catch (e) { ok({}); } }
+                       else bad(new Error("GitHub " + x.status + ": " + (x.responseText || "").slice(0, 200))); };
+    x.onerror = () => bad(new Error("The connection to GitHub was lost"));
+    x.ontimeout = () => bad(new Error("It took too long (slow internet) - tap again"));
+    x.send(body);
+  });
+}
+function b64OfBlob(b) { return new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = () => bad(r.error || new Error("Could not read the file")); r.readAsDataURL(b); }); }
+async function sha256Hex(buf) { try { const h = await crypto.subtle.digest("SHA-256", buf); return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { return ""; } }
+let JSZIP = null;
+function loadZip() {                       // only needed for a .zip Setup, so it loads on demand
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  if (JSZIP) return JSZIP;
+  JSZIP = new Promise((ok, bad) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    s.onload = () => ok(window.JSZip); s.onerror = () => { JSZIP = null; bad(new Error("Could not load the zip reader - check the internet")); }; document.head.appendChild(s); });
+  return JSZIP;
+}
+let busy = false;
+function keepAwake(on) { try { if (window.ZZ && ZZ.busy) ZZ.busy(!!on); } catch (e) {} }
+async function upPC() {
+  if (busy) return;
+  const f = $("u_pc").files[0], v = $("u_pcv").value.trim();
+  if (!f || !v) { bar("pc", 0, "Choose the file and enter the version", "upbad"); return; }
+  if (!/^\d+(\.\d+)*$/.test(v)) { bar("pc", 0, "The version must be a number, e.g. 8.2", "upbad"); return; }
+  busy = true; keepAwake(true); $("b_pc").disabled = true; $("b_pc").textContent = "Uploading …";
+  bar("pc", 1, "Starting - keep the screen on and the app open.");
+  try {
+    let blob = f;
+    if (/\.zip$/i.test(f.name)) {
+      bar("pc", 1, "Opening the zip …");
+      const Z = await loadZip();
+      const z = await Z.loadAsync(f); const e = Object.values(z.files).find(x => /\.exe$/i.test(x.name));
+      if (!e) throw new Error("No .exe inside the zip - choose the Setup zip");
+      blob = await e.async("blob", m => bar("pc", 1 + m.percent * 0.04, "Opening the zip … <b>" + m.percent.toFixed(0) + "%</b>"));
+    }
+    if (blob.size < 1e6) throw new Error("This Setup file is too small (" + blob.size + " bytes) - wrong file?");
+    bar("pc", 5, "Checking the file …");
+    const sha = await sha256Hex(await blob.arrayBuffer());
+    const PART = 12 * 1024 * 1024, n = Math.ceil(blob.size / PART), tree = [], parts = [];
+    const mb = x => (x / 1e6).toFixed(1);
+    const tag = v.replace(/[^0-9.]/g, ""), stamp = Date.now().toString(36);
+    for (let i = 0; i < n; i++) {
+      const piece = blob.slice(i * PART, Math.min(blob.size, (i + 1) * PART));
+      const b64 = await b64OfBlob(piece);
+      const res = await xhrJson("POST", GH + "/git/blobs", JSON.stringify({content: b64, encoding: "base64"}), q => {
+        const done = i * PART + q * piece.size;
+        bar("pc", 6 + 88 * done / blob.size, `Uploading: <b>${mb(done)} / ${mb(blob.size)} MB</b> &nbsp;(part ${i + 1} of ${n})`);
+      });
+      const path = `parts/pc-${tag}-${stamp}-${i + 1}.bin`;
+      tree.push({path, mode: "100644", type: "blob", sha: res.sha});
+      parts.push(RAW + path);
+    }
+    bar("pc", 95, "Saving …");
+    const ref = await gh("/git/ref/heads/main"), head = await gh("/git/commits/" + ref.object.sha);
+    const old = await gh("/git/trees/" + head.tree.sha + "?recursive=1");
+    for (const t of old.tree || []) {                       // old parts and the old single Setup go away (repo stays small)
+      if (t.type === "blob" && ((t.path.startsWith("parts/") && !tree.some(x => x.path === t.path)) || t.path === "ZamZamDieMakerDrawing-Setup.exe"))
+        tree.push({path: t.path, mode: "100644", type: "blob", sha: null});
+    }
+    const info = {version: v, notes: $("u_pcn").value.trim(), parts, size: blob.size, sha256: sha};
+    const ub = await gh("/git/blobs", {method: "POST", body: JSON.stringify({content: b64OfText(JSON.stringify(info, null, 1)), encoding: "base64"})});
+    tree.push({path: "update.json", mode: "100644", type: "blob", sha: ub.sha});
+    const t = await gh("/git/trees", {method: "POST", body: JSON.stringify({base_tree: head.tree.sha, tree})});
+    const c = await gh("/git/commits", {method: "POST", body: JSON.stringify({message: "PC app " + v + " (phone)", tree: t.sha, parents: []})});
+    await gh("/git/refs/heads/main", {method: "PATCH", body: JSON.stringify({sha: c.sha, force: true})});
+    bar("pc", 100, `✔ PC update <b>${v}</b> published (${mb(blob.size)} MB). Open the app on the PC or press Update - it shows at once.`, "upok");
+    VERS.pc = info; fillVersions(); toast("PC update " + v + " published");
+  } catch (e) {
+    bar("pc", 0, "✖ The update was not published:\n" + (e && e.message ? e.message : e) + "\n\nCheck the internet and tap 'Publish PC update' again.", "upbad");
+  } finally {
+    busy = false; keepAwake(false); $("b_pc").disabled = false; $("b_pc").textContent = "Publish PC update";
+  }
+}
+async function upAPK() {
+  if (busy) return;
+  const f = $("u_apk").files[0]; let vc = parseInt($("u_apkv").value, 10);
+  const m = f && f.name.match(/v(\d+)/i); if (m) vc = parseInt(m[1], 10);
+  if (!f || !vc) { bar("apk", 0, "Choose the APK and enter the version", "upbad"); return; }
+  busy = true; keepAwake(true); $("b_apk").disabled = true; $("b_apk").textContent = "Uploading …";
+  try {
+    const b64 = await b64OfFile(f);
+    const res = await xhrJson("POST", GH + "/git/blobs", JSON.stringify({content: b64, encoding: "base64"}),
+                              q => bar("apk", 5 + 85 * q, "Uploading: <b>" + (q * 100).toFixed(0) + "%</b>"));
+    bar("apk", 92, "Saving …");
+    const info = {versionCode: vc, versionName: "2." + vc, notes: "New version", url: RAW + "ZamZamAdmin.apk"};
+    const ref = await gh("/git/ref/heads/main"), head = await gh("/git/commits/" + ref.object.sha);
+    const ib = await gh("/git/blobs", {method: "POST", body: JSON.stringify({content: b64OfText(JSON.stringify(info, null, 1)), encoding: "base64"})});
+    const t = await gh("/git/trees", {method: "POST", body: JSON.stringify({base_tree: head.tree.sha, tree: [
+      {path: "ZamZamAdmin.apk", mode: "100644", type: "blob", sha: res.sha}, {path: "admin_apk.json", mode: "100644", type: "blob", sha: ib.sha}]})});
+    const c = await gh("/git/commits", {method: "POST", body: JSON.stringify({message: "Admin APK 2." + vc, tree: t.sha, parents: []})});
+    await gh("/git/refs/heads/main", {method: "PATCH", body: JSON.stringify({sha: c.sha, force: true})});
+    bar("apk", 100, "✔ App update 2." + vc + " published. Close and reopen the app - it will offer the update.", "upok");
+    VERS.apk = info; fillVersions();
+  } catch (e) {
+    bar("apk", 0, "✖ Not published:\n" + (e && e.message ? e.message : e), "upbad");
+  } finally { busy = false; keepAwake(false); $("b_apk").disabled = false; $("b_apk").textContent = "Publish app update"; }
+}
+async function upHTML() {
+  const f = $("u_html").files[0]; if (!f) { upMsg("Choose the HTML file"); return; }
+  try {
+    await pushFiles([{path:"admin/index.html", b64:await b64OfFile(f)}], "Admin page");
+    upMsg(""); toast("Page published - it shows within 1-2 minutes");
+  } catch (e) { upMsg(e.message); }
+}
+
+$("pw").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+try { A = JSON.parse(store.get("zz_admin") || "null"); } catch (e) { A = null; }
+if (A) enter();
+</script>
+</body>
+</html>
